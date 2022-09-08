@@ -19,3 +19,4 @@ There are various steps needed to create the final product. Please see the steps
 ### Data Visualization
 * With our views created and sectioned out, it makes easy work to create the Dashboard and overall telling the story. Please see below on the PowerBi screenshots of the Dashboard creation.
 
+![ ](https://user-images.githubusercontent.com/90928939/189237637-aeb35f02-e6fc-4d40-a71b-a9896f9b8247.png)
