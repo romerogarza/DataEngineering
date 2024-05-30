@@ -1,0 +1,46 @@
+	USE 
+		--SRXReporting
+		SRXReporting_DW
+		--QuickSightReporting
+		--Indy_Load
+		--subscriptions
+	GO
+
+	DECLARE @SearchString varchar(2000)
+	SET @SearchString = 'FutureFillReportTracking'
+	DECLARE @DBName varchar(255) =  QUOTENAME(DB_NAME())
+	
+	SELECT @DBName
+	, a.SchemaName
+	, a.name
+	, LTRIM(REPLACE( tps.name, xtype + ':' ,'')) as CleanName
+	, @SearchString
+	,case   when LTRIM(REPLACE( tps.name, xtype + ':' ,'')) not like '%user table%' 
+			then 'sp_helptext '''+ a.SchemaName + '.' + a.name +  '''' 
+			when LTRIM(REPLACE( tps.name, xtype + ':' ,''))  like '%user table%' 
+				then 'select * from ' +   a.SchemaName + '.' + a.name
+			else null end
+	FROM 
+	(
+		select distinct		sysobjects.name,sysobjects.xtype
+	---select *
+	, SCHEMA_NAME(sys.objects.schema_id) SchemaName
+		from
+			sysobjects  (nolock) 
+		left join sys.objects  (nolock) on sys.objects.object_id=sysobjects.id
+		 join syscomments  (nolock) on syscomments.id = sysobjects.id
+		where syscomments.text like '%'+@SearchString+'%'	
+		UNION
+		SELECT
+		so.name, so.xtype, SCHEMA_NAME(sys.objects.schema_id) SchemaName
+		from
+			sysobjects so (nolock) 
+			left join sys.objects  (nolock) on sys.objects.object_id=so.id
+			JOIN syscolumns  sc  (nolock)
+			on so.id = sc.id
+		where sc.name like '%'+@SearchString+'%' or so.name like '%'+@SearchString+'%'
+	) a
+	left join master..spt_values  tps  (nolock)
+		on tps.name like xtype + ':%'
+
+	
